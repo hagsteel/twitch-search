@@ -96,6 +96,7 @@ fn fetch(after: Option<String>) -> (Vec<Entry>, Option<String>) {
 }
 
 fn main() {
+    println!("Searching...");
     let mut page = None;
     loop {
         let (entries, p) = fetch(page);
@@ -108,4 +109,5 @@ fn main() {
             break;
         }
     }
+    println!("Done...");
 }
