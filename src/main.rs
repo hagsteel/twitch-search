@@ -19,8 +19,8 @@ struct Entry {
     game_id: String,
 }
 
-fn filter(entry: &Entry) -> bool {
-    if entry.title.to_lowercase().contains("rust") {
+fn filter(entry: &Entry, term: &str) -> bool {
+    if entry.title.to_lowercase().contains(term) {
         true
     } else {
         false
@@ -96,18 +96,33 @@ fn fetch(after: Option<String>) -> (Vec<Entry>, Option<String>) {
 }
 
 fn main() {
-    println!("Searching...");
+    let search_term = match std::env::args().skip(1).next() {
+        Some(term) => term.to_lowercase(),
+        None => "rust".to_string(),
+    };
+
+    println!("Searching for \"{}\"", search_term);
+
+    let mut total = 0;
+    let mut found = 0;
+
     let mut page = None;
     loop {
         let (entries, p) = fetch(page);
+        total += entries.len();
         page = p;
-        for entry in entries.into_iter().filter(filter).collect::<Vec<_>>() {
+        for entry in entries
+            .into_iter()
+            .filter(|e| filter(e, &search_term))
+            .collect::<Vec<_>>()
+        {
             print(entry);
+            found += 1;
         }
 
         if page.is_none() {
             break;
         }
     }
-    println!("Done...");
+    println!("Done ({}/{})", found, total);
 }
